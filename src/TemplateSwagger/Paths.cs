@@ -16,16 +16,7 @@ namespace TemplateSwagger
                 {
                     name = "id",
                     @in = "query",
-                    description = "Specify to get only one object",
-                    required = false,
-                    type = "string",
-                    format = "string"
-                },
-                new Parameter
-                {
-                    name = "id",
-                    @in = "query",
-                    description = "Specify to get only one object",
+                    description = "Unique id of object",
                     required = false,
                     type = "string",
                     format = "string"
@@ -34,32 +25,82 @@ namespace TemplateSwagger
 
             foreach (var templateType in templateTypes)
             {
-                var pathItem = new PathItem();
                 var type = templateType.Type;
-
-                paths.Add($"/article/{type}", pathItem);
-                var get = new Operation
+                paths.Add($"/article/{type}/{{id}}", new PathItem
                 {
-                    summary = $"Get one or more {type}",
-                    parameters = articleParameters,
-                    responses = new Dictionary<string, Response>
-                    {
-                        ["200"] = new Response
-                        {
-                            description = $"A result array of {type}",
-                            schema = new Schema
-                            {
-                                type = "array",
-                                items = new Schema {@ref = $"#/definitions/{type}"}
-                            }
-                        }
-                    }
-                };
+                    get = CreateGetSingleOperation(type, articleParameters),
+                    put = CreatePutSingleOperation(type, articleParameters)
+                });
 
-                pathItem.get = get;
+                paths.Add($"/article/{type}", new PathItem
+                {
+                    get = CreateGetMultiOperation(type, articleParameters)
+                });
             }
 
             return paths;
+        }
+
+        private static Operation CreatePutSingleOperation(string type, List<Parameter> articleParameters)
+        {
+            var put = new Operation
+            {
+                summary = $"Create or update {type}",
+                parameters = articleParameters,
+                responses = new Dictionary<string, Response>
+                {
+                    ["200"] = new Response
+                    {
+                        description = $"A result array of {type}",
+                        schema = new Schema {@ref = $"{type}"}
+                    }
+                }
+            };
+            return put;
+        }
+
+        private static Operation CreateGetMultiOperation(string type, List<Parameter> articleParameters)
+        {
+            var get = new Operation
+            {
+                summary = $"Get all {type}(s)",
+                parameters = articleParameters,
+                responses = new Dictionary<string, Response>
+                {
+                    ["200"] = new Response
+                    {
+                        description = $"A result array of {type}",
+                        schema = new Schema
+                        {
+                            type = "object",
+                            @ref = $"Result{type}"
+                        }
+                    }
+                }
+            };
+            return get;
+        }
+
+        private static Operation CreateGetSingleOperation(string type, List<Parameter> articleParameters)
+        {
+            var get = new Operation
+            {
+                summary = $"Get one {type}",
+                parameters = articleParameters,
+                responses = new Dictionary<string, Response>
+                {
+                    ["200"] = new Response
+                    {
+                        description = $"A result array of {type}",
+                        schema = new Schema
+                        {
+                            type = "object",
+                            @ref = $"Result{type}"
+                        }
+                    }
+                }
+            };
+            return get;
         }
     }
 }

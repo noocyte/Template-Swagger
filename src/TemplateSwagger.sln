@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemplateSwagger", "TemplateSwagger\TemplateSwagger.csproj", "{9F78D043-0EDA-4D6F-AE81-E811D88EEA14}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dummy.Web", "Dummy.Web\Dummy.Web.csproj", "{5CA5D700-E49A-4670-8C0C-49D9B2439213}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{9F78D043-0EDA-4D6F-AE81-E811D88EEA14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F78D043-0EDA-4D6F-AE81-E811D88EEA14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F78D043-0EDA-4D6F-AE81-E811D88EEA14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CA5D700-E49A-4670-8C0C-49D9B2439213}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CA5D700-E49A-4670-8C0C-49D9B2439213}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CA5D700-E49A-4670-8C0C-49D9B2439213}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CA5D700-E49A-4670-8C0C-49D9B2439213}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

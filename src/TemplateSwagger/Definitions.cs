@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using MoreLinq;
 using Swashbuckle.Swagger;
 using UXRisk.Lib.TemplateModel.Models;
 
@@ -40,8 +38,8 @@ namespace TemplateSwagger
 
             foreach (var templateType in templateTypes)
             {
-                var combinedProperties = GenerateTypeProperties(templateType)
-                    .Concat(articleProperties)
+                var combinedProperties = articleProperties
+                    .Concat(GenerateTypeProperties(templateType).OrderBy(pair => pair.Key))
                     .ToDictionary(pair => pair.Key, pair => pair.Value);
 
                 var schema = new Schema
@@ -52,7 +50,18 @@ namespace TemplateSwagger
                 };
                 var type = templateType.Type;
 
-                definitions.Add($"#/definitions/{type}", schema);
+                definitions.Add($"{type}", schema);
+
+                var resultSchema = new Schema
+                {
+                    type="object",
+                    properties = new Dictionary<string, Schema>
+                    {
+                        ["results"] = new Schema {  type = "array", items = new Schema { @ref = type } }
+                    }
+                };
+                definitions.Add($"Result{type}", resultSchema);
+
             }
 
             var multiReferenceSchema = new Schema
@@ -92,16 +101,17 @@ namespace TemplateSwagger
                 }
             };
 
-            definitions.Add("#/definitions/MultiReference", multiReferenceSchema);
-            definitions.Add("#/definitions/SingleReference", singleReferenceSchema);
-
+            definitions.Add("MultiReference", multiReferenceSchema);
+            definitions.Add("SingleReference", singleReferenceSchema);
+            
             return definitions;
         }
 
         private static IDictionary<string, Schema> GenerateTypeProperties(ArticleType templateType)
         {
             var typeProperties = new Dictionary<string, Schema>();
-            foreach (var field in templateType.Fields)
+            var restrictedFieldNames = new[] { "id", "parentid", "parenttype" };
+            foreach (var field in templateType.Fields.Where(field => !restrictedFieldNames.Contains(field.Name)))
             {
                 typeProperties[field.Name] = new Schema
                 {
@@ -110,11 +120,10 @@ namespace TemplateSwagger
                     description = ""
                 };
 
-                if (field.Type == DataType.SingleValue )
-                    typeProperties[field.Name].@ref = "#/definitions/SingleReference";
-                if (field.Type == DataType.MultiValue )
-                    typeProperties[field.Name].@ref = "#/definitions/MultiReference";
-
+                if (field.Type == DataType.SingleValue)
+                    typeProperties[field.Name].@ref = "SingleReference";
+                if (field.Type == DataType.MultiValue)
+                    typeProperties[field.Name].@ref = "MultiReference";
             }
 
             return typeProperties;

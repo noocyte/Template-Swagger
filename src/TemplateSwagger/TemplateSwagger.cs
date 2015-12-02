@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using MoreLinq;
 using Swashbuckle.Swagger;
 using UXRisk.Lib.TemplateModel.Models;
@@ -26,8 +27,13 @@ namespace TemplateSwagger
                 .DistinctBy(type => type.Type)
                 .ToList();
 
-            swaggerDoc.paths = Paths.GenerateSwaggerPaths(templateTypes);
-            swaggerDoc.definitions = Definitions.GenerateSwaggerDefinitions(templateTypes);
+            swaggerDoc.paths = swaggerDoc.paths
+                .Concat(Paths.GenerateSwaggerPaths(templateTypes))
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+            swaggerDoc.definitions = swaggerDoc.definitions
+                .Concat(Definitions.GenerateSwaggerDefinitions(templateTypes))
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
 
             return swaggerDoc;
         }

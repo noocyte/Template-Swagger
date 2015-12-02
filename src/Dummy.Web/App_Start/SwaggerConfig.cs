@@ -1,9 +1,12 @@
+using System.IO;
+using System.Web;
 using System.Web.Http;
-using WebActivatorEx;
 using Dummy.Web;
+using Newtonsoft.Json;
 using Swashbuckle.Application;
+using UXRisk.Lib.TemplateModel.Models;
 
-[assembly: PreApplicationStartMethod(typeof(SwaggerConfig), "Register")]
+[assembly: WebActivatorEx.PreApplicationStartMethod(typeof(SwaggerConfig), "Register")]
 
 namespace Dummy.Web
 {
@@ -12,6 +15,10 @@ namespace Dummy.Web
         public static void Register()
         {
             var thisAssembly = typeof(SwaggerConfig).Assembly;
+            var path = System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/Template.json");
+            var json = File.ReadAllText(path);
+            var template = JsonConvert.DeserializeObject<Template>(json);
+            var templates = new[] {template};
 
             GlobalConfiguration.Configuration 
                 .EnableSwagger(c =>
@@ -165,7 +172,7 @@ namespace Dummy.Web
                         // Wrap the default SwaggerGenerator with additional behavior (e.g. caching) or provide an
                         // alternative implementation for ISwaggerProvider with the CustomProvider option.
                         //
-                        c.CustomProvider((defaultProvider) => new TemplateSwagger.TemplateSwagger(defaultProvider, null));
+                        c.CustomProvider((defaultProvider) => new TemplateSwagger.TemplateSwagger(defaultProvider, templates));
                     })
                 .EnableSwaggerUi(c =>
                     {

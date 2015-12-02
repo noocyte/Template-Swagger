@@ -7,18 +7,40 @@ using System.Web.Http;
 
 namespace Dummy.Web.Controllers
 {
+    public class Val
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+    }
+
+    public class Result
+    {
+        public Val[] results { get; set; }
+    }
+
     public class ValuesController : ApiController
     {
-        // GET api/values
-        public IEnumerable<string> Get()
+        private readonly Val[] _vals;
+
+        public ValuesController()
         {
-            return new string[] { "value1", "value2" };
+            _vals = new []
+            {
+                new Val {Id = 1, Title = "One"},
+                new Val {Id = 2, Title = "Two"}
+            };
+        }
+
+        // GET api/values
+        public Result Get()
+        {
+            return new Result {results = _vals};
         }
 
         // GET api/values/5
-        public string Get(int id)
+        public Result Get(int id)
         {
-            return "value";
+            return new Result { results = _vals.Where(v => v.Id == id).ToArray()};
         }
 
         // POST api/values
