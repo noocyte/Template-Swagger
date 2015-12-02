@@ -132,6 +132,7 @@ namespace TemplateSwagger
             var multiReferenceSchema = new Schema
             {
                 type = "object",
+                required = new[] { "values", "type" },
                 properties = new Dictionary<string, Schema>
                 {
                     ["type"] = new Schema
@@ -150,6 +151,7 @@ namespace TemplateSwagger
             var singleReferenceSchema = new Schema
             {
                 type = "object",
+                required = new[] {"values", "type"},
                 properties = new Dictionary<string, Schema>
                 {
                     ["type"] = new Schema
