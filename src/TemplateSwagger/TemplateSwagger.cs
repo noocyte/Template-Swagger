@@ -28,11 +28,13 @@ namespace TemplateSwagger
                 .ToList();
 
             swaggerDoc.paths = swaggerDoc.paths
-                .Concat(Paths.GenerateSwaggerPaths(templateTypes))
+                .Concat(Paths.GenerateSwaggerPathsForArticles(templateTypes))
+                .Concat(Paths.GenerateSwaggerPathsForEntities(templateTypes))
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
 
             swaggerDoc.definitions = swaggerDoc.definitions
-                .Concat(Definitions.GenerateSwaggerDefinitions(templateTypes))
+                .Concat(Definitions.GenerateSwaggerDefinitionsForArticles(templateTypes))
+                .Concat(Definitions.GenerateSwaggerDefinitionsForEntities(templateTypes))
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
 
             return swaggerDoc;

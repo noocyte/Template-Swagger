@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Swashbuckle.Swagger;
 using UXRisk.Lib.TemplateModel.Models;
 
@@ -6,7 +7,51 @@ namespace TemplateSwagger
 {
     internal static class Paths
     {
-        internal static IDictionary<string, PathItem> GenerateSwaggerPaths(IEnumerable<ArticleType> templateTypes)
+        internal static IDictionary<string, PathItem> GenerateSwaggerPathsForEntities(IEnumerable<ArticleType> templateTypes)
+        {
+            var knownEntities = templateTypes
+                .SelectMany(t => t.Fields)
+                .Where(f => !f.Name.StartsWith("a_"))
+                .Where(f => !string.IsNullOrWhiteSpace(f.Entity?.Type))
+                .Select(f => f.Entity.Type)
+                .Distinct()
+                .ToList();
+
+            var paths = new Dictionary<string, PathItem>();
+
+            var articleParameters = new List<Parameter>
+            {
+                new Parameter
+                {
+                    name = "id",
+                    @in = "query",
+                    description = "Unique id of object",
+                    required = false,
+                    type = "string",
+                    format = "string"
+                }
+            };
+
+            foreach (var entity in knownEntities)
+            {
+                var type = entity;
+                paths.Add($"/entity/{type}/{{id}}", new PathItem
+                {
+                    get = CreateGetSingleOperation(type, articleParameters),
+                    put = CreatePutSingleOperation(type, articleParameters)
+                });
+
+                paths.Add($"/entity/{type}", new PathItem
+                {
+                    get = CreateGetMultiOperation(type, articleParameters)
+                });
+            }
+
+            return paths;
+        }
+
+
+        internal static IDictionary<string, PathItem> GenerateSwaggerPathsForArticles(IEnumerable<ArticleType> templateTypes)
         {
             var paths = new Dictionary<string, PathItem>();
 

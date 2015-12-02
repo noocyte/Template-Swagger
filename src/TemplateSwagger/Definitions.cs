@@ -7,7 +7,73 @@ namespace TemplateSwagger
 {
     internal static class Definitions
     {
-        internal static IDictionary<string, Schema> GenerateSwaggerDefinitions(IEnumerable<ArticleType> templateTypes)
+        internal static IDictionary<string, Schema> GenerateSwaggerDefinitionsForEntities(
+            IEnumerable<ArticleType> templateTypes)
+        {
+            var definitions = new Dictionary<string, Schema>();
+            var entityProperties = new Dictionary<string, Schema>
+            {
+                ["id"] = new Schema
+                {
+                    type = "string",
+                    description = "unique identifier for the entity",
+                },
+                ["parentid"] = new Schema
+                {
+                    type = "string",
+                    description = "unique identifier for the parent entity",
+                },
+                ["name"] = new Schema
+                {
+                    type = "string",
+                    description = "name of the entity",
+                }
+            };
+
+            var articleRequired = new List<string>
+            {
+                "id",
+                "parentid",
+                "name"
+            };
+
+
+            var knownEntities = templateTypes
+                .SelectMany(t => t.Fields)
+                .Where(f => !f.Name.StartsWith("a_"))
+                .Where(f => !string.IsNullOrWhiteSpace(f.Entity?.Type))
+                .Select(f => f.Entity.Type)
+                .Distinct()
+                .ToList();
+
+            foreach (var entity in knownEntities)
+            {
+                var schema = new Schema
+                {
+                    type = "object",
+                    required = articleRequired,
+                    properties = entityProperties
+                };
+                var type = entity;
+
+                definitions.Add($"{type}", schema);
+
+                var resultSchema = new Schema
+                {
+                    type = "object",
+                    properties = new Dictionary<string, Schema>
+                    {
+                        ["results"] = new Schema {type = "array", items = new Schema {@ref = type}}
+                    }
+                };
+                definitions.Add($"ResultOf{type}", resultSchema);
+            }
+
+            return definitions;
+        }
+
+        internal static IDictionary<string, Schema> GenerateSwaggerDefinitionsForArticles(
+            IEnumerable<ArticleType> templateTypes)
         {
             var definitions = new Dictionary<string, Schema>();
             var articleProperties = new Dictionary<string, Schema>
@@ -54,14 +120,13 @@ namespace TemplateSwagger
 
                 var resultSchema = new Schema
                 {
-                    type="object",
+                    type = "object",
                     properties = new Dictionary<string, Schema>
                     {
-                        ["results"] = new Schema {  type = "array", items = new Schema { @ref = type } }
+                        ["results"] = new Schema {type = "array", items = new Schema {@ref = type}}
                     }
                 };
                 definitions.Add($"ResultOf{type}", resultSchema);
-
             }
 
             var multiReferenceSchema = new Schema
@@ -77,7 +142,7 @@ namespace TemplateSwagger
                     ["values"] = new Schema
                     {
                         type = "array",
-                        items = new Schema { type = "string", description = "The unique id of referenced objects" }
+                        items = new Schema {type = "string", description = "The unique id of referenced objects"}
                     }
                 }
             };
@@ -96,21 +161,21 @@ namespace TemplateSwagger
                     {
                         type = "array",
                         maxItems = 1,
-                        items = new Schema { type = "string", description = "The unique id of referenced objects" }
+                        items = new Schema {type = "string", description = "The unique id of referenced objects"}
                     }
                 }
             };
 
             definitions.Add("MultiReference", multiReferenceSchema);
             definitions.Add("SingleReference", singleReferenceSchema);
-            
+
             return definitions;
         }
 
         private static IDictionary<string, Schema> GenerateTypeProperties(ArticleType templateType)
         {
             var typeProperties = new Dictionary<string, Schema>();
-            var restrictedFieldNames = new[] { "id", "parentid", "parenttype" };
+            var restrictedFieldNames = new[] {"id", "parentid", "parenttype"};
             foreach (var field in templateType.Fields.Where(field => !restrictedFieldNames.Contains(field.Name)))
             {
                 typeProperties[field.Name] = new Schema
