@@ -73,7 +73,7 @@ namespace TemplateSwagger
                         schema = new Schema
                         {
                             type = "object",
-                            @ref = $"Result{type}"
+                            @ref = $"ResultOf{type}"
                         }
                     }
                 }
@@ -95,7 +95,7 @@ namespace TemplateSwagger
                         schema = new Schema
                         {
                             type = "object",
-                            @ref = $"Result{type}"
+                            @ref = $"ResultOf{type}"
                         }
                     }
                 }

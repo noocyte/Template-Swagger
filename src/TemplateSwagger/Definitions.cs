@@ -60,7 +60,7 @@ namespace TemplateSwagger
                         ["results"] = new Schema {  type = "array", items = new Schema { @ref = type } }
                     }
                 };
-                definitions.Add($"Result{type}", resultSchema);
+                definitions.Add($"ResultOf{type}", resultSchema);
 
             }
 
